@@ -1,25 +1,39 @@
 const Vue = require('vue')
 const express = require('express')
 const fs = require('fs')
-
-const serverBundle = require('./dist/vue-ssr-server-bundle.json')
-const clientManifest = require('./dist/vue-ssr-client-manifest.json')
-const template = fs.readFileSync('./index.template.html', 'utf-8')
-
-const renderer = require('vue-server-renderer').createBundleRenderer(
-  serverBundle,
-  {
-    template,
-    clientManifest,
-  }
-)
+const { createBundleRenderer } = require('vue-server-renderer')
+const setupDevServer = require('./build/setup-dev-server')
 
 const server = express()
 
 //请求静态资源
 server.use('/dist', express.static('./dist'))
 
-server.get('/', (req, res) => {
+const isPord = process.env.NODE_ENV === 'production'
+
+let renderer
+let onReady
+
+if (isPord) {
+  const serverBundle = require('./dist/vue-ssr-server-bundle.json')
+  const clientManifest = require('./dist/vue-ssr-client-manifest.json')
+  const template = fs.readFileSync('./index.template.html', 'utf-8')
+
+  renderer = createBundleRenderer(serverBundle, {
+    template,
+    clientManifest,
+  })
+} else {
+  // 开发模式 --> 监视打包构建 --> 重新生成 Renderer渲染器
+  onReady = setupDevServer(server, (renderer, serverBundle, clientManifest) => {
+    renderer = createBundleRenderer(serverBundle, {
+      template,
+      clientManifest,
+    })
+  })
+}
+
+const render = (req, res) => {
   renderer.renderToString(
     {
       title: '拉钩教育',
@@ -33,7 +47,18 @@ server.get('/', (req, res) => {
       res.end(html)
     }
   )
-})
+}
+
+server.get(
+  '/',
+  isPord
+    ? render
+    : async (req, res) => {
+        // 等待有了 renderer渲染器以后，调用render进行渲染
+        await onReady
+        render()
+      }
+)
 
 server.listen(3000, () => {
   console.log('server running at 3000')
