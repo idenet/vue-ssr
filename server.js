@@ -6,7 +6,7 @@ const setupDevServer = require('./build/setup-dev-server')
 
 const server = express()
 
-//请求静态资源
+//请求静态资源 物理磁盘中的资源文件
 server.use('/dist', express.static('./dist'))
 
 const isPord = process.env.NODE_ENV === 'production'
@@ -25,7 +25,7 @@ if (isPord) {
   })
 } else {
   // 开发模式 --> 监视打包构建 --> 重新生成 Renderer渲染器
-  onReady = setupDevServer(server, (renderer, serverBundle, clientManifest) => {
+  onReady = setupDevServer(server, (serverBundle, template, clientManifest) => {
     renderer = createBundleRenderer(serverBundle, {
       template,
       clientManifest,
@@ -56,7 +56,7 @@ server.get(
     : async (req, res) => {
         // 等待有了 renderer渲染器以后，调用render进行渲染
         await onReady
-        render()
+        render(req, res)
       }
 )
 

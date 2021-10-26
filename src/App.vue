@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <h1>{{message}}</h1>
-    <h2>客户端动态标签</h2>
+    <h2>客户端动态标签qweqw</h2>
     <div>
       <input type="text" v-model="message" />
     </div>
