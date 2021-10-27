@@ -20,7 +20,7 @@ module.exports = {
     // 当省略扩展名的时候，按照从前往后的顺序依次解析
     extensions: ['.js', '.vue', '.json'],
   },
-  devtool: isProd ? 'source-map' : 'eval-cheap-module-source-map',
+  devtool: isProd ? 'source-map' : 'source-map',
   module: {
     rules: [
       // 处理图片资源
