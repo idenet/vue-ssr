@@ -1,11 +1,18 @@
 <template>
   <div id="app">
-    <h1>{{message}}</h1>
-    <h2>客户端动态标签qweqw</h2>
-    <div>
-      <input type="text" v-model="message" />
-    </div>
-    <button @click="onClick">点击测试</button>
+    <ul>
+      <li>
+        <router-link to="/">Home</router-link>
+      </li>
+      <li>
+        <router-link to="/about">About</router-link>
+      </li>
+      <li>
+        <router-link to="/post">Post</router-link>
+      </li>
+    </ul>
+    <!-- 路由出口 -->
+    <router-view></router-view>
   </div>
 </template>
 
